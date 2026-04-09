@@ -232,70 +232,178 @@ def generate_tweet_text(product, tweet_type, all_products=None):
 # ==================== ترجمة اسم المنتج ====================
 
 def translate_product_name(title, category_ar=''):
-    """ترجمة اسم المنتج للعربية بناءً على الكلمات المفتاحية"""
+    """ترجمة اسم المنتج للعربية مع إضافة تفاصيل المنتج الحقيقية"""
     title_lower = title.lower()
 
-    translations = {
-        'earbuds': 'سماعات لاسلكية',
-        'headphone': 'سماعات',
-        'earphone': 'سماعات',
-        'bluetooth': 'بلوتوث',
-        'smart watch': 'ساعة ذكية',
-        'smartwatch': 'ساعة ذكية',
-        'fitness tracker': 'ساعة رياضية',
-        'phone case': 'كفر جوال',
-        'case cover': 'كفر حماية',
-        'led strip': 'شريط LED',
-        'led light': 'إضاءة LED',
-        'power bank': 'بطارية محمولة',
-        'charger': 'شاحن',
-        'kitchen': 'أداة مطبخ',
-        'organizer': 'منظم',
-        'speaker': 'سبيكر',
-        'camera': 'كاميرا',
-        'security camera': 'كاميرا مراقبة',
-        'car': 'إكسسوار سيارة',
-        'serum': 'سيروم',
-        'skincare': 'عناية بالبشرة',
-        'toothbrush': 'فرشاة أسنان',
-        'fan': 'مروحة',
-        'backpack': 'شنطة ظهر',
-        'bag': 'شنطة',
-        'switch': 'مفتاح ذكي',
-        'lamp': 'مصباح',
-        'ring light': 'إضاءة حلقية',
-        'tripod': 'حامل كاميرا',
-        'mouse': 'ماوس',
-        'keyboard': 'كيبورد',
-        'cable': 'كابل',
-        'adapter': 'محوّل',
-        'holder': 'حامل',
-        'stand': 'ستاند',
-        'watch': 'ساعة',
-        'glasses': 'نظارة',
-        'sunglasses': 'نظارة شمسية',
-        'wallet': 'محفظة',
-        'bracelet': 'سوار',
-        'necklace': 'قلادة',
-        'ring': 'خاتم',
-        'mask': 'ماسك',
-        'cream': 'كريم',
-        'oil': 'زيت',
-        'brush': 'فرشاة',
-        'comb': 'مشط',
-        'dryer': 'مجفف',
-        'iron': 'مكواة',
-        'vacuum': 'مكنسة',
-        'humidifier': 'مرطب هواء',
-        'air purifier': 'منقي هواء',
-        'projector': 'بروجكتر',
-        'drone': 'درون',
-        'toy': 'لعبة',
-        'puzzle': 'بازل',
-    }
+    # قاموس مفصّل: الكلمة الإنجليزية → الاسم العربي
+    # مرتّب من الأطول للأقصر لضمان أولوية المطابقة الدقيقة
+    translations = [
+        # سماعات
+        ('true wireless', 'سماعات لاسلكية TWS'),
+        ('noise cancelling', 'سماعات عازلة للصوت'),
+        ('noise canceling', 'سماعات عازلة للصوت'),
+        ('bone conduction', 'سماعات توصيل عظمي'),
+        ('gaming headset', 'سماعة قيمنق'),
+        ('earbuds', 'سماعات لاسلكية'),
+        ('headphone', 'سماعات'),
+        ('earphone', 'سماعات'),
+        # ساعات
+        ('smart watch', 'ساعة ذكية'),
+        ('smartwatch', 'ساعة ذكية'),
+        ('fitness tracker', 'ساعة رياضية'),
+        ('sport watch', 'ساعة رياضية'),
+        ('digital watch', 'ساعة رقمية'),
+        ('watch', 'ساعة ذكية'),
+        # جوالات وإكسسوارات
+        ('phone case', 'كفر جوال'),
+        ('case cover', 'كفر حماية'),
+        ('screen protector', 'حماية شاشة'),
+        ('phone holder', 'حامل جوال'),
+        ('selfie stick', 'عصا سيلفي'),
+        # إضاءة
+        ('ring light', 'إضاءة حلقية'),
+        ('led strip', 'شريط LED'),
+        ('led light', 'إضاءة LED'),
+        ('night light', 'إضاءة ليلية'),
+        ('desk lamp', 'مصباح مكتب'),
+        ('floor lamp', 'مصباح أرضي'),
+        ('solar light', 'إضاءة شمسية'),
+        # شحن وطاقة
+        ('power bank', 'باور بنك'),
+        ('wireless charger', 'شاحن لاسلكي'),
+        ('fast charger', 'شاحن سريع'),
+        ('car charger', 'شاحن سيارة'),
+        ('usb charger', 'شاحن USB'),
+        ('charger', 'شاحن'),
+        # مطبخ وبيت
+        ('air fryer', 'قلاية هوائية'),
+        ('coffee maker', 'ماكينة قهوة'),
+        ('electric kettle', 'غلاية كهربائية'),
+        ('kitchen scale', 'ميزان مطبخ'),
+        ('knife', 'سكين'),
+        ('cutting board', 'لوح تقطيع'),
+        ('baking mat', 'حصيرة خبز سيليكون'),
+        ('baking mold', 'قالب خبز'),
+        ('baking pan', 'صينية خبز'),
+        ('silicone mat', 'حصيرة سيليكون'),
+        ('dough mat', 'لوح عجن'),
+        ('pizza cutter', 'قاطعة بيتزا'),
+        ('can opener', 'فتاحة علب'),
+        ('peeler', 'مقشرة'),
+        ('grater', 'مبشورة'),
+        ('strainer', 'مصفاة'),
+        ('colander', 'مصفاة طبخ'),
+        ('spatula', 'ملعقة طبخ'),
+        ('whisk', 'خفاقة'),
+        ('mixing bowl', 'وعاء خلط'),
+        ('measuring cup', 'كوب قياس'),
+        ('kitchen timer', 'موقت مطبخ'),
+        ('kitchen', 'أداة مطبخ'),
+        ('storage box', 'صندوق تخزين'),
+        ('organizer', 'منظم'),
+        # صوت
+        ('bluetooth speaker', 'سبيكر بلوتوث'),
+        ('portable speaker', 'سبيكر محمول'),
+        ('speaker', 'سبيكر'),
+        # كاميرات
+        ('security camera', 'كاميرا مراقبة'),
+        ('ip camera', 'كاميرا IP'),
+        ('action camera', 'كاميرا أكشن'),
+        ('webcam', 'ويب كام'),
+        ('camera', 'كاميرا'),
+        # سيارة
+        ('car charger', 'شاحن سيارة'),
+        ('dash cam', 'كاميرا سيارة'),
+        ('car vacuum', 'مكنسة سيارة'),
+        ('car air freshener', 'معطر سيارة'),
+        ('car', 'إكسسوار سيارة'),
+        # عناية شخصية
+        ('electric toothbrush', 'فرشاة أسنان كهربائية'),
+        ('toothbrush', 'فرشاة أسنان'),
+        ('face wash', 'غسول وجه'),
+        ('face mask', 'ماسك وجه'),
+        ('hair dryer', 'مجفف شعر'),
+        ('hair straightener', 'مكواة شعر'),
+        ('hair curler', 'كيرلي شعر'),
+        ('shaver', 'ماكينة حلاقة'),
+        ('trimmer', 'ماكينة تشذيب'),
+        ('serum', 'سيروم'),
+        ('moisturizer', 'مرطب بشرة'),
+        ('sunscreen', 'واقي شمس'),
+        ('lip balm', 'مرطب شفاه'),
+        ('perfume', 'عطر'),
+        ('skincare', 'عناية بالبشرة'),
+        ('cream', 'كريم'),
+        ('oil', 'زيت'),
+        ('brush', 'فرشاة'),
+        # تقنية
+        ('wireless mouse', 'ماوس لاسلكي'),
+        ('gaming mouse', 'ماوس قيمنق'),
+        ('mechanical keyboard', 'كيبورد ميكانيكي'),
+        ('mouse pad', 'ماوس باد'),
+        ('mouse', 'ماوس'),
+        ('keyboard', 'كيبورد'),
+        ('usb hub', 'هب USB'),
+        ('type-c cable', 'كابل Type-C'),
+        ('lightning cable', 'كابل آيفون'),
+        ('hdmi cable', 'كابل HDMI'),
+        ('cable', 'كابل'),
+        ('adapter', 'محوّل'),
+        ('tripod', 'حامل كاميرا'),
+        ('laptop stand', 'حامل لابتوب'),
+        ('phone stand', 'ستاند جوال'),
+        ('stand', 'ستاند'),
+        ('holder', 'حامل'),
+        # ملابس وإكسسوارات
+        ('sunglasses', 'نظارة شمسية'),
+        ('glasses', 'نظارة'),
+        ('wallet', 'محفظة'),
+        ('bracelet', 'سوار'),
+        ('necklace', 'قلادة'),
+        ('ring', 'خاتم'),
+        ('backpack', 'شنطة ظهر'),
+        ('travel bag', 'شنطة سفر'),
+        ('bag', 'شنطة'),
+        # منزل ذكي
+        ('smart plug', 'بريزة ذكية'),
+        ('smart bulb', 'لمبة ذكية'),
+        ('smart switch', 'مفتاح ذكي'),
+        ('robot vacuum', 'مكنسة روبوت'),
+        ('air purifier', 'منقي هواء'),
+        ('humidifier', 'مرطب هواء'),
+        ('fan', 'مروحة'),
+        ('vacuum', 'مكنسة'),
+        # ترفيه
+        ('projector', 'بروجكتر'),
+        ('drone', 'درون'),
+        ('game controller', 'يد تحكم'),
+        ('toy', 'لعبة'),
+        ('puzzle', 'بازل'),
+        # رياضة
+        ('yoga mat', 'سجادة يوغا'),
+        ('resistance band', 'حزام مقاومة'),
+        ('jump rope', 'حبل قفز'),
+        ('water bottle', 'قنينة ماء'),
+        ('gym gloves', 'قفازات رياضة'),
+    ]
 
-    for en, ar in translations.items():
+    for en, ar in translations:
         if en in title_lower:
+            # أضف تفاصيل إضافية من العنوان إذا وُجدت
+            extras = []
+            if 'wireless' in title_lower and 'wireless' not in en:
+                extras.append('لاسلكي')
+            if 'waterproof' in title_lower or 'water resistant' in title_lower:
+                extras.append('مقاوم للماء')
+            if 'mini' in title_lower:
+                extras.append('ميني')
+            if 'pro' in title_lower:
+                extras.append('برو')
+            if extras:
+                # تجنّب تكرار كلمة لاسلكي إذا كانت موجودة في الاسم العربي بالفعل
+                filtered_extras = [e for e in extras if e not in ar]
+                if filtered_extras:
+                    return f"{ar} {' '.join(filtered_extras)}"
             return ar
 
     # إذا لم تجد ترجمة، استخدم اسم الفئة
