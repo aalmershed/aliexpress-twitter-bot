@@ -19,16 +19,16 @@ logger = logging.getLogger(__name__)
 
 # ==================== إعدادات API ====================
 # AliExpress
-AE_APP_KEY = os.environ.get('AE_APP_KEY', '531672')
-AE_APP_SECRET = os.environ.get('AE_APP_SECRET', 'kr2XqMjkaEbsUvAXLEGXOP6PLdUXjGEL')
+AE_APP_KEY = os.environ.get('ALIEXPRESS_APP_KEY', '531672')
+AE_APP_SECRET = os.environ.get('ALIEXPRESS_APP_SECRET', 'kr2XqMjkaEbsUvAXLEGXOP6PLdUXjGEL')
 AE_API_URL = 'https://api-sg.aliexpress.com/sync'
 AE_TRACKING_ID = 'default'
 
 # Twitter
-TW_CONSUMER_KEY = os.environ.get('TW_CONSUMER_KEY', 'k7Gr5I4nnp2GNIoVuGcUpx85X')
-TW_CONSUMER_SECRET = os.environ.get('TW_CONSUMER_SECRET', 'HaaHWrcsFEnhJgS4gGJoVaZ1hTyaI511VQICcCjtDgo5g5wtBR')
-TW_ACCESS_TOKEN = os.environ.get('TW_ACCESS_TOKEN', '1676288058671374339-OF8cltNe5JbUPshBtEEclNfr5fjNGJ')
-TW_ACCESS_TOKEN_SECRET = os.environ.get('TW_ACCESS_TOKEN_SECRET', 'jLjqp91seV0GdhFdvVuWwwh8nLBBFfcX14QOEEVXD6lsh')
+TW_CONSUMER_KEY = os.environ.get('TWITTER_API_KEY', 'k7Gr5I4nnp2GNIoVuGcUpx85X')
+TW_CONSUMER_SECRET = os.environ.get('TWITTER_API_SECRET', 'HaaHWrcsFEnhJgS4gGJoVaZ1hTyaI511VQICcCjtDgo5g5wtBR')
+TW_ACCESS_TOKEN = os.environ.get('TWITTER_ACCESS_TOKEN', '1676288058671374339-OF8cltNe5JbUPshBtEEclNfr5fjNGJ')
+TW_ACCESS_TOKEN_SECRET = os.environ.get('TWITTER_ACCESS_SECRET', 'jLjqp91seV0GdhFdvVuWwwh8nLBBFfcX14QOEEVXD6lsh')
 
 # OpenAI
 openai_client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
