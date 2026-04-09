@@ -48,7 +48,7 @@ CATEGORIES = [
     {'keywords': 'smart home automation switch', 'emoji': '🏡', 'ar': 'منزل ذكي'},
 ]
 
-TWEET_TYPES = ['deal', 'deal', 'deal', 'review', 'list']
+TWEET_TYPES = ['deal', 'deal', 'deal', 'deal', 'review', 'review', 'list', 'question', 'tip']
 
 
 # ==================== AliExpress API ====================
@@ -176,6 +176,117 @@ def get_emoji(title, category=''):
     return '🛒'
 
 
+
+# ==================== هاشتاقات متنوعة حسب الفئة ====================
+
+HASHTAGS_BY_CATEGORY = {
+    'سماعات': [
+        '#سماعات #AliExpress #عروض',
+        '#سماعات_لاسلكية #تخفيضات #علي_اكسبريس',
+        '#سماعات #بلوتوث #عروض_اليوم',
+        '#تقنية #سماعات #AliExpress #خصومات',
+    ],
+    'ساعة': [
+        '#ساعة_ذكية #AliExpress #عروض',
+        '#ساعات #تقنية #تخفيضات',
+        '#smartwatch #ساعة_ذكية #علي_اكسبريس',
+        '#ساعة #عروض_اليوم #AliExpress',
+    ],
+    'كفر': [
+        '#كفرات #جوال #AliExpress #عروض',
+        '#اكسسوارات_جوال #تخفيضات #علي_اكسبريس',
+        '#كفر #ايفون #AliExpress',
+        '#اكسسوارات #جوال #عروض_اليوم',
+    ],
+    'شاحن': [
+        '#شاحن #تقنية #AliExpress #عروض',
+        '#شاحن_سريع #تخفيضات #علي_اكسبريس',
+        '#شاحن #باور_بنك #عروض_اليوم',
+        '#اكسسوارات_تقنية #AliExpress #خصومات',
+    ],
+    'باور بنك': [
+        '#باور_بنك #AliExpress #عروض',
+        '#شاحن_محمول #تخفيضات #علي_اكسبريس',
+        '#باور_بنك #تقنية #عروض_اليوم',
+    ],
+    'مطبخ': [
+        '#مطبخ #ادوات_مطبخ #AliExpress #عروض',
+        '#ادوات_مطبخ #تخفيضات #علي_اكسبريس',
+        '#مطبخ #طبخ #عروض_اليوم #AliExpress',
+        '#ادوات_منزلية #مطبخ #خصومات',
+    ],
+    'منزل': [
+        '#منزل #ديكور #AliExpress #عروض',
+        '#ادوات_منزلية #تخفيضات #علي_اكسبريس',
+        '#منزل #تنظيم #عروض_اليوم',
+        '#ديكور_منزل #AliExpress #خصومات',
+    ],
+    'سبيكر': [
+        '#سبيكر #بلوتوث #AliExpress #عروض',
+        '#مكبر_صوت #تخفيضات #علي_اكسبريس',
+        '#سبيكر #صوتيات #عروض_اليوم',
+    ],
+    'كاميرا': [
+        '#كاميرا #مراقبة #AliExpress #عروض',
+        '#كاميرات #تقنية #تخفيضات',
+        '#كاميرا #امن_منزلي #علي_اكسبريس',
+    ],
+    'سيارة': [
+        '#سيارة #اكسسوارات_سيارة #AliExpress #عروض',
+        '#اكسسوارات_سيارات #تخفيضات #علي_اكسبريس',
+        '#سيارة #عروض_اليوم #AliExpress',
+    ],
+    'عناية': [
+        '#عناية_بالبشرة #AliExpress #عروض',
+        '#بيوتي #جمال #تخفيضات #علي_اكسبريس',
+        '#عناية #جمال #عروض_اليوم',
+        '#سكين_كير #AliExpress #خصومات',
+    ],
+    'رياضة': [
+        '#رياضة #لياقة #AliExpress #عروض',
+        '#ادوات_رياضية #تخفيضات #علي_اكسبريس',
+        '#رياضة #عروض_اليوم #AliExpress',
+    ],
+    'default': [
+        '#AliExpress #عروض #تخفيضات',
+        '#علي_اكسبريس #عروض_اليوم #خصومات',
+        '#AliExpress #تسوق #عروض',
+        '#تخفيضات #عروض_اليوم #AliExpress',
+        '#علي_اكسبريس #تسوق_اونلاين #خصومات',
+        '#AliExpress #عروض #توفير',
+        '#تسوق #خصومات #AliExpress #عروض',
+    ],
+}
+
+
+def get_hashtags(ar_name, category_ar=''):
+    text = (ar_name + ' ' + category_ar)
+    if any(w in text for w in ['سماعة', 'سماعات']):
+        return random.choice(HASHTAGS_BY_CATEGORY['سماعات'])
+    elif any(w in text for w in ['ساعة', 'ساعات']):
+        return random.choice(HASHTAGS_BY_CATEGORY['ساعة'])
+    elif any(w in text for w in ['كفر', 'كفرات']):
+        return random.choice(HASHTAGS_BY_CATEGORY['كفر'])
+    elif 'باور بنك' in text:
+        return random.choice(HASHTAGS_BY_CATEGORY['باور بنك'])
+    elif 'شاحن' in text:
+        return random.choice(HASHTAGS_BY_CATEGORY['شاحن'])
+    elif any(w in text for w in ['مطبخ', 'طبخ']):
+        return random.choice(HASHTAGS_BY_CATEGORY['مطبخ'])
+    elif any(w in text for w in ['منزل', 'تخزين', 'منظم']):
+        return random.choice(HASHTAGS_BY_CATEGORY['منزل'])
+    elif 'سبيكر' in text:
+        return random.choice(HASHTAGS_BY_CATEGORY['سبيكر'])
+    elif 'كاميرا' in text:
+        return random.choice(HASHTAGS_BY_CATEGORY['كاميرا'])
+    elif 'سيارة' in text:
+        return random.choice(HASHTAGS_BY_CATEGORY['سيارة'])
+    elif any(w in text for w in ['عناية', 'بشرة', 'جمال', 'سيروم', 'كريم']):
+        return random.choice(HASHTAGS_BY_CATEGORY['عناية'])
+    elif any(w in text for w in ['رياضة', 'لياقة']):
+        return random.choice(HASHTAGS_BY_CATEGORY['رياضة'])
+    return random.choice(HASHTAGS_BY_CATEGORY['default'])
+
 # ==================== توليد التغريدات بقوالب سعودية ====================
 
 def generate_tweet_text(product, tweet_type, all_products=None):
@@ -211,6 +322,23 @@ def generate_tweet_text(product, tweet_type, all_products=None):
             f"🌟 {ar_name} من علي اكسبريس\nاشتريته بـ {sale} وما ندمت!\nأنصح فيه {emoji}",
             f"✨ وصلني {ar_name}\nبـ {sale} من علي اكسبريس\nوالله يستاهل أكثر من سعره! {emoji}",
             f"👍 {ar_name} تجربة ممتازة!\nبـ {sale} بس وجودة عالية {emoji}\nمن علي اكسبريس",
+        ]
+
+    elif tweet_type == 'question':
+        templates = [
+            f"🤔 تبي {ar_name} بسعر مناسب?\n{emoji} الحين بـ {sale} بدل {original}!\nخصم {discount} على علي اكسبريس 👇",
+            f"💡 تعرف إن {ar_name} وصل لـ {sale}?\nكان {original} وخصم {discount}!\n{emoji} فرصة ما تتكرر!",
+            f"📢 سمعتوا?\n{emoji} {ar_name} بخصم {discount}!\nمن {original} لـ {sale} فقط!\nعلي اكسبريس 🔥",
+            f"👀 شفتوا هالعرض?\n{emoji} {ar_name}\nبـ {sale} بدل {original}\nخصم {discount} والله يستاهل!",
+            f"🛒 تبي توفّر?\n{emoji} {ar_name} بـ {sale}\nبدل {original} - خصم {discount}!\nاطلبه الحين ⬇️",
+        ]
+
+    elif tweet_type == 'tip':
+        templates = [
+            f"💡 نصيحة اليوم:\nاشتري {emoji} {ar_name} من علي اكسبريس\nبـ {sale} بدل {original}!\nخصم {discount} ما يطيح كذا!",
+            f"🎓 وفّر فلوسك:\n{emoji} {ar_name}\nعوض ما تشتريه بـ {original}\nاشتريه بـ {sale} من علي اكسبريس! خصم {discount}",
+            f"⭐ اكتشاف اليوم:\n{emoji} {ar_name}\nبـ {sale} بس على علي اكسبريس!\nكان {original} وخصم {discount} 🔥",
+            f"🏷️ سعر ما يصدق:\n{emoji} {ar_name}\n{original} ← {sale} فقط!\nخصم {discount} على علي اكسبريس",
         ]
 
     else:  # list
@@ -587,7 +715,7 @@ def run_bot():
     short_url = shorten_url(product['url'])
     logger.info(f"🔗 الرابط المقصّر: {short_url}")
 
-    hashtags = "#AliExpress #عروض #تخفيضات"
+    hashtags = get_hashtags(product.get('ar_name', ''), cat.get('ar', ''))
     full_tweet = f"{body}\n\n{hashtags}\n{short_url}"
 
     logger.info(f"\n{'='*50}")
