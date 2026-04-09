@@ -305,6 +305,19 @@ def translate_product_name(title, category_ar=''):
     return 'منتج مميز'
 
 
+# ==================== تقصير الروابط ====================
+
+def shorten_url(url):
+    """تقصير الرابط باستخدام TinyURL"""
+    try:
+        r = requests.get(f'https://tinyurl.com/api-create.php?url={url}', timeout=10)
+        if r.status_code == 200 and r.text.startswith('http'):
+            return r.text.strip()
+    except Exception as e:
+        logger.warning(f"URL shortening failed: {e}")
+    return url
+
+
 # ==================== Twitter API ====================
 
 def post_to_twitter(text, image_path=None):
@@ -431,8 +444,12 @@ def run_bot():
 
     body = generate_tweet_text(product, tweet_type, formatted if tweet_type == 'list' else None)
 
+    # تقصير الرابط
+    short_url = shorten_url(product['url'])
+    logger.info(f"🔗 الرابط المقصّر: {short_url}")
+
     hashtags = "#AliExpress #عروض #تخفيضات"
-    full_tweet = f"{body}\n\n{hashtags}\n{product['url']}"
+    full_tweet = f"{body}\n\n{hashtags}\n{short_url}"
 
     logger.info(f"\n{'='*50}")
     logger.info(f"التغريدة:\n{full_tweet}")
