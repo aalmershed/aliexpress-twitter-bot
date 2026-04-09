@@ -29,29 +29,26 @@ TW_CONSUMER_SECRET = os.environ.get('TWITTER_API_SECRET', 'HaaHWrcsFEnhJgS4gGJoV
 TW_ACCESS_TOKEN = os.environ.get('TWITTER_ACCESS_TOKEN', '1676288058671374339-OF8cltNe5JbUPshBtEEclNfr5fjNGJ')
 TW_ACCESS_TOKEN_SECRET = os.environ.get('TWITTER_ACCESS_SECRET', 'jLjqp91seV0GdhFdvVuWwwh8nLBBFfcX14QOEEVXD6lsh')
 
-# Gemini API key
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
-
 # فئات المنتجات
 CATEGORIES = [
-    {'keywords': 'wireless earbuds bluetooth headphones', 'emoji': '🎧'},
-    {'keywords': 'smart watch fitness tracker', 'emoji': '⌚'},
-    {'keywords': 'phone case cover accessories', 'emoji': '📱'},
-    {'keywords': 'LED light strip RGB smart', 'emoji': '💡'},
-    {'keywords': 'portable charger power bank', 'emoji': '🔋'},
-    {'keywords': 'kitchen gadgets tools cooking', 'emoji': '🍳'},
-    {'keywords': 'home storage organizer box', 'emoji': '🏠'},
-    {'keywords': 'bluetooth speaker portable', 'emoji': '🔊'},
-    {'keywords': 'security camera wifi outdoor', 'emoji': '📹'},
-    {'keywords': 'car accessories gadgets usb', 'emoji': '🚗'},
-    {'keywords': 'skincare beauty face serum', 'emoji': '✨'},
-    {'keywords': 'electric toothbrush oral care', 'emoji': '🦷'},
-    {'keywords': 'mini fan portable usb cooling', 'emoji': '💨'},
-    {'keywords': 'backpack travel bag waterproof', 'emoji': '🎒'},
-    {'keywords': 'smart home automation switch', 'emoji': '🏡'},
+    {'keywords': 'wireless earbuds bluetooth headphones', 'emoji': '🎧', 'ar': 'سماعات لاسلكية'},
+    {'keywords': 'smart watch fitness tracker', 'emoji': '⌚', 'ar': 'ساعة ذكية'},
+    {'keywords': 'phone case cover accessories', 'emoji': '📱', 'ar': 'كفر جوال'},
+    {'keywords': 'LED light strip RGB smart', 'emoji': '💡', 'ar': 'إضاءة LED ذكية'},
+    {'keywords': 'portable charger power bank', 'emoji': '🔋', 'ar': 'بطارية محمولة'},
+    {'keywords': 'kitchen gadgets tools cooking', 'emoji': '🍳', 'ar': 'أدوات مطبخ'},
+    {'keywords': 'home storage organizer box', 'emoji': '🏠', 'ar': 'منظم منزلي'},
+    {'keywords': 'bluetooth speaker portable', 'emoji': '🔊', 'ar': 'سبيكر بلوتوث'},
+    {'keywords': 'security camera wifi outdoor', 'emoji': '📹', 'ar': 'كاميرا مراقبة'},
+    {'keywords': 'car accessories gadgets usb', 'emoji': '🚗', 'ar': 'إكسسوارات سيارة'},
+    {'keywords': 'skincare beauty face serum', 'emoji': '✨', 'ar': 'سيروم للبشرة'},
+    {'keywords': 'electric toothbrush oral care', 'emoji': '🦷', 'ar': 'فرشاة كهربائية'},
+    {'keywords': 'mini fan portable usb cooling', 'emoji': '💨', 'ar': 'مروحة صغيرة'},
+    {'keywords': 'backpack travel bag waterproof', 'emoji': '🎒', 'ar': 'شنطة سفر'},
+    {'keywords': 'smart home automation switch', 'emoji': '🏡', 'ar': 'منزل ذكي'},
 ]
 
-TWEET_TYPES = ['deal', 'deal', 'deal', 'review', 'list']  # deal أكثر شيوعاً
+TWEET_TYPES = ['deal', 'deal', 'deal', 'review', 'list']
 
 
 # ==================== AliExpress API ====================
@@ -102,7 +99,6 @@ def get_affiliate_link(product_url):
 
 
 def fetch_products(keyword=None, page_size=10):
-    """جلب منتجات من AliExpress"""
     extra = {
         'sort': 'LAST_VOLUME_DESC',
         'page_no': '1',
@@ -129,7 +125,6 @@ def fetch_products(keyword=None, page_size=10):
                 .get('products', {})
                 .get('product', []))
 
-    # فلترة بخصم 35%+
     filtered = []
     for p in products:
         disc = p.get('discount', '0%').replace('%', '').strip()
@@ -142,7 +137,6 @@ def fetch_products(keyword=None, page_size=10):
 
 
 def download_image(url, product_id):
-    """تحميل صورة المنتج"""
     path = f"/tmp/{product_id}.jpg"
     if os.path.exists(path) and os.path.getsize(path) > 5000:
         return path
@@ -160,7 +154,6 @@ def download_image(url, product_id):
 
 def get_emoji(title, category=''):
     title_lower = title.lower()
-    cat_lower = category.lower()
     checks = [
         (['earbuds', 'headphone', 'earphone'], '🎧'),
         (['watch', 'smartwatch'], '⌚'),
@@ -178,118 +171,144 @@ def get_emoji(title, category=''):
         (['bag', 'backpack'], '🎒'),
     ]
     for keywords, emoji in checks:
-        if any(kw in title_lower or kw in cat_lower for kw in keywords):
+        if any(kw in title_lower for kw in keywords):
             return emoji
     return '🛒'
 
 
-# ==================== توليد التغريدات ====================
+# ==================== توليد التغريدات بقوالب سعودية ====================
 
 def generate_tweet_text(product, tweet_type, all_products=None):
-    """توليد نص التغريدة بالعربية السعودية"""
-    name = product['name']
+    """توليد نص التغريدة بالعربية السعودية باستخدام قوالب متنوعة"""
     sale = product['sale_price']
     original = product['original_price']
     discount = product['discount']
     emoji = product['emoji']
+    ar_name = product.get('ar_name', 'منتج مميز')
     coupon = product.get('coupon_amount')
 
     if tweet_type == 'deal':
-        prompt = f"""اكتب تغريدة قصيرة جداً بالعربية السعودية البسيطة عن عرض من علي اكسبريس.
-
-المنتج (بالإنجليزية): {name[:80]}
-السعر الأصلي: {original}
-سعر العرض: {sale}
-الخصم: {discount}
-{f'كوبون خصم إضافي: {coupon} ريال' if coupon else ''}
-
-الشروط:
-- ترجم اسم المنتج للعربية (3-4 كلمات فقط)
-- لهجة سعودية عامية بسيطة (والله، ما يطيح، جرب، يستاهل، حلو)
-- سطرين أو ثلاثة فقط
-- لا تكتب هاشتاقات ولا روابط
-- ابدأ بالإيموجي {emoji}
-{f'- اذكر الكوبون بشكل مثير' if coupon else ''}
-
-مثال:
-"{emoji} [اسم المنتج]
-كان {original} وصار {sale} 😱
-خصم {discount} والله ما يطيح!"
-"""
+        templates = [
+            f"{emoji} {ar_name}\nكان {original} وصار {sale} 😱\nخصم {discount} والله ما يطيح!",
+            f"🔥 عرض اليوم!\n{emoji} {ar_name}\nمن {original} لـ {sale} فقط!\nخصم {discount} لا يفوتك 👇",
+            f"{emoji} {ar_name} بسعر خرافي!\n{original} ← {sale} 🤩\nخصم {discount} على علي اكسبريس!",
+            f"💥 لقطة والله!\n{emoji} {ar_name}\nالسعر نزل من {original} لـ {sale}\nخصم {discount} جرّبها!",
+            f"🛍️ عرض ما يفوت!\n{emoji} {ar_name}\nبـ {sale} بدل {original}\nخصم {discount} يستاهل!",
+            f"{emoji} {ar_name} 😍\nالسعر الجديد: {sale} فقط!\nكان {original} وخصم {discount}!\nحلو والله 🔥",
+            f"⚡ فرصة ذهبية!\n{emoji} {ar_name}\n{original} صارت {sale} بس!\nخصم {discount} ما يتكرر!",
+            f"🎯 {ar_name}\nبـ {sale} بدل {original} 😲\nخصم {discount} والله يستاهل الطلب!",
+        ]
+        if coupon:
+            templates.append(
+                f"{emoji} {ar_name}\nكان {original} وصار {sale} 😱\nخصم {discount} + كوبون {coupon} ريال إضافي! 🎁"
+            )
 
     elif tweet_type == 'review':
-        prompt = f"""اكتب تغريدة قصيرة بالعربية السعودية كأنك اشتريت المنتج وتشارك تجربتك.
-
-المنتج: {name[:80]}
-السعر: {sale}
-
-الشروط:
-- ترجم اسم المنتج للعربية (3-4 كلمات)
-- لهجة سعودية عامية بسيطة وصادقة
-- سطرين أو ثلاثة فقط
-- لا تكتب هاشتاقات ولا روابط
-- ابدأ بإيموجي
-
-مثال:
-"✅ اشتريت [اسم المنتج] من علي اكسبريس
-بـ {sale} وما ندمت {emoji}
-يستاهل والله!"
-"""
+        templates = [
+            f"✅ اشتريت {ar_name} من علي اكسبريس\nبـ {sale} وما ندمت {emoji}\nيستاهل والله!",
+            f"{emoji} جربت {ar_name}\nوالله ما توقعت الجودة بهالسعر!\nبـ {sale} بس 👌",
+            f"💬 تجربتي مع {ar_name}:\nاشتريته بـ {sale}\nجودة ممتازة وسعر حلو جداً {emoji}",
+            f"🌟 {ar_name} من علي اكسبريس\nاشتريته بـ {sale} وما ندمت!\nأنصح فيه {emoji}",
+            f"✨ وصلني {ar_name}\nبـ {sale} من علي اكسبريس\nوالله يستاهل أكثر من سعره! {emoji}",
+            f"👍 {ar_name} تجربة ممتازة!\nبـ {sale} بس وجودة عالية {emoji}\nمن علي اكسبريس",
+        ]
 
     else:  # list
         items = (all_products or [product])[:3]
-        items_text = '\n'.join([
-            f"{p['emoji']} {p['name'][:50]} - {p['sale_price']} (خصم {p['discount']})"
+        items_lines = '\n'.join([
+            f"{p['emoji']} {p.get('ar_name', 'منتج')} - {p['sale_price']} (خصم {p['discount']})"
             for p in items
         ])
-        prompt = f"""اكتب تغريدة قصيرة بالعربية السعودية عن أفضل عروض اليوم من علي اكسبريس.
-
-المنتجات:
-{items_text}
-
-الشروط:
-- ترجم أسماء المنتجات للعربية
-- لهجة سعودية عامية بسيطة
-- 4-5 أسطر فقط
-- لا تكتب هاشتاقات ولا روابط
-- ابدأ بعنوان جذاب
-"""
-
-    try:
-        import google.generativeai as genai
-        genai.configure(api_key=os.environ.get('GEMINI_API_KEY', ''))
-        model = genai.GenerativeModel('gemini-2.0-flash')
-        full_prompt = "اكتب فقط نص التغريدة بدون أي شرح. لهجة سعودية بسيطة ومختصرة.\n\n" + prompt
-        response = model.generate_content(full_prompt)
-        return response.text.strip()
-    except Exception as e:
-        logger.error(f"Gemini error: {e}")
-        # قوالب احتياطية متنوعة
-        templates_deal = [
-            f"{emoji} عرض اليوم من علي اكسبريس!\nكان {original} وصار {sale} 😱\nخصم {discount} والله ما يطيح!",
-            f"{emoji} لقطة والله!\nالسعر نزل من {original} لـ {sale}\nخصم {discount} جربها!",
-            f"🔥 عرض ما يفوت!\n{emoji} كان {original} وصار {sale}\nخصم {discount} على علي اكسبريس!",
+        templates = [
+            f"🛒 أحسن عروض اليوم على AliExpress:\n{items_lines}\nلا تفوّت الفرصة! 🔥",
+            f"🔥 عروض اليوم من علي اكسبريس:\n{items_lines}\nخصومات توصل للنص!",
+            f"⚡ أقوى عروض اليوم:\n{items_lines}\nاطلب الحين قبل ما ينتهي! 🛍️",
+            f"💥 عروض ما تفوت:\n{items_lines}\nكلها بخصومات كبيرة على AliExpress!",
         ]
-        templates_review = [
-            f"✅ منتج جربته وما ندمت {emoji}\nبـ {sale} بس والله يستاهل!\nمن علي اكسبريس",
-            f"{emoji} اشتريته بـ {sale}\nجودة ممتازة وسعر حلو!\nيستاهل والله!",
-        ]
-        templates_list = [
-            f"🛒 أحسن عروض اليوم على AliExpress:\n{emoji} منتج مميز - {sale}\nخصم {discount} لا تفوّته!",
-        ]
-        if tweet_type == 'deal':
-            return random.choice(templates_deal)
-        elif tweet_type == 'review':
-            return random.choice(templates_review)
-        else:
-            return random.choice(templates_list)
+
+    return random.choice(templates)
+
+
+# ==================== ترجمة اسم المنتج ====================
+
+def translate_product_name(title, category_ar=''):
+    """ترجمة اسم المنتج للعربية بناءً على الكلمات المفتاحية"""
+    title_lower = title.lower()
+
+    translations = {
+        'earbuds': 'سماعات لاسلكية',
+        'headphone': 'سماعات',
+        'earphone': 'سماعات',
+        'bluetooth': 'بلوتوث',
+        'smart watch': 'ساعة ذكية',
+        'smartwatch': 'ساعة ذكية',
+        'fitness tracker': 'ساعة رياضية',
+        'phone case': 'كفر جوال',
+        'case cover': 'كفر حماية',
+        'led strip': 'شريط LED',
+        'led light': 'إضاءة LED',
+        'power bank': 'بطارية محمولة',
+        'charger': 'شاحن',
+        'kitchen': 'أداة مطبخ',
+        'organizer': 'منظم',
+        'speaker': 'سبيكر',
+        'camera': 'كاميرا',
+        'security camera': 'كاميرا مراقبة',
+        'car': 'إكسسوار سيارة',
+        'serum': 'سيروم',
+        'skincare': 'عناية بالبشرة',
+        'toothbrush': 'فرشاة أسنان',
+        'fan': 'مروحة',
+        'backpack': 'شنطة ظهر',
+        'bag': 'شنطة',
+        'switch': 'مفتاح ذكي',
+        'lamp': 'مصباح',
+        'ring light': 'إضاءة حلقية',
+        'tripod': 'حامل كاميرا',
+        'mouse': 'ماوس',
+        'keyboard': 'كيبورد',
+        'cable': 'كابل',
+        'adapter': 'محوّل',
+        'holder': 'حامل',
+        'stand': 'ستاند',
+        'watch': 'ساعة',
+        'glasses': 'نظارة',
+        'sunglasses': 'نظارة شمسية',
+        'wallet': 'محفظة',
+        'bracelet': 'سوار',
+        'necklace': 'قلادة',
+        'ring': 'خاتم',
+        'mask': 'ماسك',
+        'cream': 'كريم',
+        'oil': 'زيت',
+        'brush': 'فرشاة',
+        'comb': 'مشط',
+        'dryer': 'مجفف',
+        'iron': 'مكواة',
+        'vacuum': 'مكنسة',
+        'humidifier': 'مرطب هواء',
+        'air purifier': 'منقي هواء',
+        'projector': 'بروجكتر',
+        'drone': 'درون',
+        'toy': 'لعبة',
+        'puzzle': 'بازل',
+    }
+
+    for en, ar in translations.items():
+        if en in title_lower:
+            return ar
+
+    # إذا لم تجد ترجمة، استخدم اسم الفئة
+    if category_ar:
+        return category_ar
+
+    return 'منتج مميز'
 
 
 # ==================== Twitter API ====================
 
 def post_to_twitter(text, image_path=None):
     """نشر التغريدة عبر Twitter API"""
-    # اقتصار النص على 270 حرف
     if len(text) > 270:
         lines = text.split('\n')
         while len('\n'.join(lines)) > 270 and len(lines) > 1:
@@ -300,11 +319,9 @@ def post_to_twitter(text, image_path=None):
 
     logger.info(f"📤 نشر التغريدة ({len(text)} حرف)...")
 
-    # v1.1 لرفع الوسائط
     auth = tweepy.OAuth1UserHandler(TW_CONSUMER_KEY, TW_CONSUMER_SECRET, TW_ACCESS_TOKEN, TW_ACCESS_TOKEN_SECRET)
     api_v1 = tweepy.API(auth)
 
-    # v2 للنشر
     client_v2 = tweepy.Client(
         consumer_key=TW_CONSUMER_KEY,
         consumer_secret=TW_CONSUMER_SECRET,
@@ -344,14 +361,11 @@ def run_bot():
     """تشغيل البوت - ينشر تغريدة واحدة"""
     logger.info("🚀 تشغيل بوت AliExpress Twitter...")
 
-    # اختيار فئة عشوائية
     cat = random.choice(CATEGORIES)
     logger.info(f"📦 الفئة: {cat['keywords']}")
 
-    # جلب المنتجات
     products_raw = fetch_products(keyword=cat['keywords'], page_size=10)
 
-    # إذا لم تجد منتجات بكلمة مفتاحية، جلب عامة
     if not products_raw:
         logger.info("🔄 جلب منتجات عامة...")
         products_raw = fetch_products(page_size=20)
@@ -360,7 +374,6 @@ def run_bot():
         logger.error("❌ لم يتم جلب أي منتجات!")
         return False
 
-    # تنسيق المنتجات
     formatted = []
     for raw in products_raw[:8]:
         pid = str(raw.get('product_id', ''))
@@ -380,21 +393,23 @@ def run_bot():
             sale_fmt = f"{sale} ريال"
             orig_fmt = f"{original} ريال"
 
-        # رابط الأفلييت
         if not promo_link or 's.click.aliexpress.com' not in promo_link:
             promo_link = get_affiliate_link(f"https://www.aliexpress.com/item/{pid}.html")
 
-        # تحميل الصورة
         img_path = download_image(image_url, pid) if image_url else None
+
+        ar_name = translate_product_name(title, cat.get('ar', ''))
+        emoji = get_emoji(title, category)
 
         if img_path:
             formatted.append({
                 'id': pid,
                 'name': title,
+                'ar_name': ar_name,
                 'sale_price': sale_fmt,
                 'original_price': orig_fmt,
                 'discount': discount,
-                'emoji': get_emoji(title, category),
+                'emoji': emoji,
                 'url': promo_link,
                 'coupon_amount': coupon,
                 'image': img_path,
@@ -406,18 +421,16 @@ def run_bot():
 
     logger.info(f"✅ {len(formatted)} منتج جاهز")
 
-    # اختيار نوع التغريدة والمنتج
     tweet_type = random.choice(TWEET_TYPES)
     product = random.choice(formatted)
 
     logger.info(f"📝 نوع التغريدة: {tweet_type}")
     logger.info(f"🛒 المنتج: {product['name'][:60]}")
+    logger.info(f"🌍 الاسم بالعربي: {product['ar_name']}")
     logger.info(f"💰 السعر: {product['sale_price']} (أصلي: {product['original_price']}) | خصم: {product['discount']}")
 
-    # توليد نص التغريدة
     body = generate_tweet_text(product, tweet_type, formatted if tweet_type == 'list' else None)
 
-    # تجميع التغريدة الكاملة
     hashtags = "#AliExpress #عروض #تخفيضات"
     full_tweet = f"{body}\n\n{hashtags}\n{product['url']}"
 
@@ -425,7 +438,6 @@ def run_bot():
     logger.info(f"التغريدة:\n{full_tweet}")
     logger.info(f"{'='*50}\n")
 
-    # النشر
     success = post_to_twitter(full_tweet, product['image'])
 
     if success:
