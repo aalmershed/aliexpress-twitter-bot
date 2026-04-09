@@ -1,0 +1,50 @@
+name: AliExpress Twitter Bot
+
+on:
+  schedule:
+    # 15 تغريدة يومياً بتوقيت السعودية (GMT+3)
+    # نحول لـ UTC بطرح 3 ساعات
+    - cron: '0 5 * * *'   # 08:00 KSA
+    - cron: '30 6 * * *'  # 09:30 KSA
+    - cron: '0 8 * * *'   # 11:00 KSA
+    - cron: '30 9 * * *'  # 12:30 KSA
+    - cron: '0 11 * * *'  # 14:00 KSA
+    - cron: '30 12 * * *' # 15:30 KSA
+    - cron: '0 14 * * *'  # 17:00 KSA
+    - cron: '30 15 * * *' # 18:30 KSA
+    - cron: '0 17 * * *'  # 20:00 KSA
+    - cron: '30 18 * * *' # 21:30 KSA
+    - cron: '0 20 * * *'  # 23:00 KSA
+    - cron: '0 3 * * *'   # 06:00 KSA
+    - cron: '30 4 * * *'  # 07:30 KSA
+    - cron: '0 19 * * *'  # 22:00 KSA
+    - cron: '30 20 * * *' # 23:30 KSA
+  workflow_dispatch:  # تشغيل يدوي للاختبار
+
+jobs:
+  tweet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run bot
+        env:
+          AE_APP_KEY: ${{ secrets.AE_APP_KEY }}
+          AE_APP_SECRET: ${{ secrets.AE_APP_SECRET }}
+          TW_CONSUMER_KEY: ${{ secrets.TW_CONSUMER_KEY }}
+          TW_CONSUMER_SECRET: ${{ secrets.TW_CONSUMER_SECRET }}
+          TW_ACCESS_TOKEN: ${{ secrets.TW_ACCESS_TOKEN }}
+          TW_ACCESS_TOKEN_SECRET: ${{ secrets.TW_ACCESS_TOKEN_SECRET }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python bot.py
