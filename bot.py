@@ -12,7 +12,6 @@ import os
 import logging
 import random
 import tweepy
-from openai import OpenAI
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -30,8 +29,8 @@ TW_CONSUMER_SECRET = os.environ.get('TWITTER_API_SECRET', 'HaaHWrcsFEnhJgS4gGJoV
 TW_ACCESS_TOKEN = os.environ.get('TWITTER_ACCESS_TOKEN', '1676288058671374339-OF8cltNe5JbUPshBtEEclNfr5fjNGJ')
 TW_ACCESS_TOKEN_SECRET = os.environ.get('TWITTER_ACCESS_SECRET', 'jLjqp91seV0GdhFdvVuWwwh8nLBBFfcX14QOEEVXD6lsh')
 
-# OpenAI
-openai_client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+# Gemini API key
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
 
 # فئات المنتجات
 CATEGORIES = [
@@ -257,19 +256,33 @@ def generate_tweet_text(product, tweet_type, all_products=None):
 """
 
     try:
-        response = openai_client.chat.completions.create(
-            model="gpt-4.1-mini",
-            messages=[
-                {"role": "system", "content": "اكتب فقط نص التغريدة بدون أي شرح. لهجة سعودية بسيطة ومختصرة."},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=150,
-            temperature=0.9
-        )
-        return response.choices[0].message.content.strip()
+        import google.generativeai as genai
+        genai.configure(api_key=os.environ.get('GEMINI_API_KEY', ''))
+        model = genai.GenerativeModel('gemini-2.0-flash')
+        full_prompt = "اكتب فقط نص التغريدة بدون أي شرح. لهجة سعودية بسيطة ومختصرة.\n\n" + prompt
+        response = model.generate_content(full_prompt)
+        return response.text.strip()
     except Exception as e:
-        logger.error(f"OpenAI error: {e}")
-        return f"{emoji} منتج مميز من علي اكسبريس\nكان {original} وصار {sale} 😱\nخصم {discount} والله يستاهل!"
+        logger.error(f"Gemini error: {e}")
+        # قوالب احتياطية متنوعة
+        templates_deal = [
+            f"{emoji} عرض اليوم من علي اكسبريس!\nكان {original} وصار {sale} 😱\nخصم {discount} والله ما يطيح!",
+            f"{emoji} لقطة والله!\nالسعر نزل من {original} لـ {sale}\nخصم {discount} جربها!",
+            f"🔥 عرض ما يفوت!\n{emoji} كان {original} وصار {sale}\nخصم {discount} على علي اكسبريس!",
+        ]
+        templates_review = [
+            f"✅ منتج جربته وما ندمت {emoji}\nبـ {sale} بس والله يستاهل!\nمن علي اكسبريس",
+            f"{emoji} اشتريته بـ {sale}\nجودة ممتازة وسعر حلو!\nيستاهل والله!",
+        ]
+        templates_list = [
+            f"🛒 أحسن عروض اليوم على AliExpress:\n{emoji} منتج مميز - {sale}\nخصم {discount} لا تفوّته!",
+        ]
+        if tweet_type == 'deal':
+            return random.choice(templates_deal)
+        elif tweet_type == 'review':
+            return random.choice(templates_review)
+        else:
+            return random.choice(templates_list)
 
 
 # ==================== Twitter API ====================
